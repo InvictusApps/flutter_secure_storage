@@ -56,6 +56,12 @@ namespace
 
     std::optional<std::string> Read(const std::string &key);
 
+    void WriteKeytar(const std::string &key, const std::string &account, const std::string &val);
+
+    LPWSTR utf8ToWideChar(std::string utf8);
+
+    std::optional<std::string> ReadKeytar(const std::string &key);
+
     flutter::EncodableMap ReadAll();
 
     void Delete(const std::string &key);
@@ -183,6 +189,38 @@ namespace
           result->Error("Exception occurred", "read");
         }
       }
+      else if (method == "writeKeytar")
+      {
+          auto key = this->GetStringArg("key", args);
+          auto val = this->GetStringArg("value", args);
+          auto account = this->GetStringArg("account", args);
+
+          if (key.has_value())
+          {
+              if (val.has_value())
+                  this->WriteKeytar(key.value(), account.value(), val.value());
+              else
+                  this->Delete(key.value());
+              result->Success();
+          }
+          else
+          {
+              result->Error("Exception occurred", "write");
+          }
+      }
+      else if (method == "readKeytar")
+      {
+          auto key = this->GetStringArg("key", args);
+          if (key.has_value())
+          {
+              auto val = this->Read(key.value());
+              result->Success(flutter::EncodableValue(val.value()));
+          }
+          else
+          {
+              result->Error("Exception occurred", "read");
+          }
+      }
       else if (method == "readAll")
       {
         auto creds = this->ReadAll();
@@ -267,6 +305,80 @@ namespace
     if (error == ERROR_NOT_FOUND)
       return std::nullopt;
     throw error;
+  }
+
+  void FlutterSecureStorageWindowsPlugin::WriteKeytar(const std::string &key, const std::string &account, const std::string &val)
+  {
+      size_t len = 1 + strlen(val.c_str());
+      CA2W keyw(key.c_str());
+
+      CREDENTIALW cred = {0};
+      //      cred.Type = CRED_TYPE_GENERIC;
+      //      cred.TargetName = keyw.m_psz;
+      //      cred.CredentialBlobSize = (DWORD)len;
+      //      cred.CredentialBlob = (LPBYTE)val.c_str();
+      //      cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
+
+      LPWSTR user_name = this->utf8ToWideChar(account);
+
+
+      cred.Type = CRED_TYPE_GENERIC;
+      cred.TargetName = keyw.m_psz;
+      cred.UserName = user_name;
+      cred.CredentialBlobSize = (DWORD)len;
+      cred.CredentialBlob = (LPBYTE)val.c_str();
+      cred.Persist = CRED_PERSIST_ENTERPRISE;
+
+      bool ok = CredWriteW(&cred, 0);
+      if (!ok)
+      {
+          throw GetLastError();
+      }
+  }
+
+  LPWSTR FlutterSecureStorageWindowsPlugin::utf8ToWideChar(std::string utf8) {
+      int wide_char_length = MultiByteToWideChar(CP_UTF8,
+                                                 0,
+                                                 utf8.c_str(),
+                                                 -1,
+                                                 NULL,
+                                                 0);
+      if (wide_char_length == 0) {
+          return NULL;
+      }
+
+      LPWSTR result = new WCHAR[wide_char_length];
+      if (MultiByteToWideChar(CP_UTF8,
+                              0,
+                              utf8.c_str(),
+                              -1,
+                              result,
+                              wide_char_length) == 0) {
+          delete[] result;
+          return NULL;
+      }
+
+      return result;
+  }
+
+  std::optional<std::string> FlutterSecureStorageWindowsPlugin::ReadKeytar(const std::string &key)
+  {
+      PCREDENTIALW pcred;
+      CA2W target_name(key.c_str());
+      bool ok = CredReadW(target_name.m_psz, CRED_TYPE_GENERIC, 0, &pcred);
+
+      if (ok)
+      {
+          auto val = std::string((char *)pcred->CredentialBlob);
+          CredFree(pcred);
+          return val;
+      }
+
+      auto error = GetLastError();
+      if (error == ERROR_NOT_FOUND) {
+          return std::string("ERROR");
+      }
+      throw error;
   }
 
   flutter::EncodableMap FlutterSecureStorageWindowsPlugin::ReadAll()

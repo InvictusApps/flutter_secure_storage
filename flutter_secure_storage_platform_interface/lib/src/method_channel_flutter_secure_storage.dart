@@ -1,7 +1,7 @@
 part of flutter_secure_storage_platform_interface;
 
 const MethodChannel _channel =
-    MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
+MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
 
 class MethodChannelFlutterSecureStorage extends FlutterSecureStoragePlatform {
   @override
@@ -55,6 +55,19 @@ class MethodChannelFlutterSecureStorage extends FlutterSecureStoragePlatform {
       );
 
   @override
+  Future<String?> readKeytar({
+    required String key,
+    required Map<String, String> options,
+  }) =>
+      _channel.invokeMethod<String?>(
+        'readKeytar',
+        {
+          'key': key,
+          'options': options,
+        },
+      );
+
+  @override
   Future<Map<String, String>> readAll({
     required Map<String, String> options,
   }) async {
@@ -76,6 +89,20 @@ class MethodChannelFlutterSecureStorage extends FlutterSecureStoragePlatform {
   }) =>
       _channel.invokeMethod<void>('write', {
         'key': key,
+        'value': value,
+        'options': options,
+      });
+
+  @override
+  Future<void> writeKeytar({
+    required String key,
+    required String account,
+    required String value,
+    required Map<String, String> options,
+  }) =>
+      _channel.invokeMethod<void>('writeKeytar', {
+        'key': key,
+        'profile': account,
         'value': value,
         'options': options,
       });

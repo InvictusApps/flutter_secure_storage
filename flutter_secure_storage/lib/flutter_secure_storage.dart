@@ -69,6 +69,32 @@ class FlutterSecureStorage {
                   iOptions, aOptions, lOptions, webOptions, mOptions, wOptions),
             );
 
+  Future<void> writeKeytar({
+    required String key,
+    required String account,
+    required String? value,
+    IOSOptions? iOptions,
+    AndroidOptions? aOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) =>
+      value == null
+          ? _platform.delete(
+        key: key,
+        options: _selectOptions(
+            iOptions, aOptions, lOptions, webOptions, mOptions, wOptions),
+      )
+          : _platform.writeKeytar(
+        key: key,
+        account: account,
+        value: value,
+        options: _selectOptions(
+            iOptions, aOptions, lOptions, webOptions, mOptions, wOptions),
+      );
+
+
   /// Decrypts and returns the value for the given [key] or null if [key] is not in the storage.
   ///
   /// [key] shouldn't be null.
@@ -94,6 +120,20 @@ class FlutterSecureStorage {
             iOptions, aOptions, lOptions, webOptions, mOptions, wOptions),
       );
 
+  Future<String?> readKeytar({
+    required String key,
+    IOSOptions? iOptions,
+    AndroidOptions? aOptions,
+    LinuxOptions? lOptions,
+    WebOptions? webOptions,
+    MacOsOptions? mOptions,
+    WindowsOptions? wOptions,
+  }) =>
+      _platform.readKeytar(
+        key: key,
+        options: _selectOptions(
+            iOptions, aOptions, lOptions, webOptions, mOptions, wOptions),
+      );
   /// Returns true if the storage contains the given [key].
   ///
   /// [key] shouldn't be null.
