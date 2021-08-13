@@ -30,9 +30,11 @@ packages:
   flutter_secure_storage_platform_interface:
     dependency: "direct main"
     description:
-      name: flutter_secure_storage_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: flutter_secure_storage_platform_interface
+      ref: HEAD
+      resolved-ref: "017b8f655f6db40a0bf8df92653b56770d2358d0"
+      url: "git@github.com:InvictusApps/flutter_secure_storage.git"
+    source: git
     version: "1.0.0"
   flutter_web_plugins:
     dependency: "direct main"
