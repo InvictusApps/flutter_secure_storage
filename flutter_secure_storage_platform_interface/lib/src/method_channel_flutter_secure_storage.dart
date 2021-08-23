@@ -18,6 +18,19 @@ class MethodChannelFlutterSecureStorage extends FlutterSecureStoragePlatform {
       ))!;
 
   @override
+  Future<bool> containsKeytar({
+    required String key,
+    required Map<String, String> options,
+  }) async =>
+      (await _channel.invokeMethod<bool>(
+        'containsKey',
+        {
+          'key': key,
+          'options': options,
+        },
+      ))!;
+
+  @override
   Future<void> delete({
     required String key,
     required Map<String, String> options,
@@ -89,20 +102,6 @@ class MethodChannelFlutterSecureStorage extends FlutterSecureStoragePlatform {
   }) =>
       _channel.invokeMethod<void>('write', {
         'key': key,
-        'value': value,
-        'options': options,
-      });
-
-  @override
-  Future<void> writeKeytar({
-    required String key,
-    required String account,
-    required String value,
-    required Map<String, String> options,
-  }) =>
-      _channel.invokeMethod<void>('writeKeytar', {
-        'key': key,
-        'profile': account,
         'value': value,
         'options': options,
       });

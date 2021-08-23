@@ -39,13 +39,6 @@ abstract class FlutterSecureStoragePlatform extends PlatformInterface {
     required String key,
     required Map<String, String> options,
   });
-  
-  Future<void> writeKeytar({
-    required String key,
-    required String account,
-    required String value,
-    required Map<String, String> options,
-  });
 
   Future<String?> readKeytar({
     required String key,
@@ -53,6 +46,11 @@ abstract class FlutterSecureStoragePlatform extends PlatformInterface {
   });
 
   Future<bool> containsKey({
+    required String key,
+    required Map<String, String> options,
+  });
+
+  Future<bool> containsKeytar({
     required String key,
     required Map<String, String> options,
   });
