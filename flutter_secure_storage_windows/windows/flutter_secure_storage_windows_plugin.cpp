@@ -188,19 +188,19 @@ namespace
       }
       else if (method == "readKeytar")
       {
-        auto key = this->GetStringArg("key", args);
-        if (key.has_value())
-        {
-          auto val = this->Read(key.value());
-          if (val.has_value())
-            result->Success(flutter::EncodableValue(val.value()));
+          auto key = this->GetStringArg("key", args);
+          if (key.has_value())
+          {
+              auto val = this->Read(key.value());
+              if (val.has_value())
+                result->Success(flutter::EncodableValue(val.value()));
+              else
+                result->Success();
+          }
           else
-            result->Success();
-        }
-        else
-        {
-          result->Error("Exception occurred", "read");
-        }
+          {
+              result->Error("Exception occurred", "read");
+          }
       }
       else if (method == "readAll")
       {
@@ -298,7 +298,7 @@ namespace
     auto error = GetLastError();
     if (error == ERROR_NOT_FOUND)
       return std::nullopt;
-    throw error;
+    return std::nullopt;
   }
 
   flutter::EncodableMap FlutterSecureStorageWindowsPlugin::ReadAll()
